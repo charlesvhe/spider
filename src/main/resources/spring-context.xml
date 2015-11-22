@@ -14,6 +14,7 @@
         http://www.springframework.org/schema/task
         http://www.springframework.org/schema/task/spring-task.xsd  ">
 
+    <context:property-placeholder location="classpath:{spring.profiles.active}.properties"/>
     <context:component-scan base-package="com.jzt.spider.controller,com.jzt.spider.service,com.jzt.spider.dao"/>
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -35,13 +36,13 @@
         </property>
     </bean>
 
-    <!--&lt;!&ndash; 数据源 &ndash;&gt;-->
+    <!-- 数据源 -->
     <bean id="dataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/test"/>
-        <property name="username" value="root"/>
-        <property name="password" value="123456"/>
+        <property name="driverClassName" value="${db.driver}"/>
+        <property name="url" value="${db.url}"/>
+        <property name="username" value="${db.username}"/>
+        <property name="password" value="${db.password}"/>
     </bean>
 
     <!-- JPA实体管理工厂的配置 -->
@@ -58,7 +59,7 @@
 
     <!--指定实现JPA的适配器-->
     <bean id="hibernateJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-        <property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect"/>
+        <property name="databasePlatform" value="${hibernate.dialect}"/>
     </bean>
 
     <!-- Jpa 事务配置 -->
