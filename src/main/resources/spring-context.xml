@@ -14,7 +14,8 @@
         http://www.springframework.org/schema/task
         http://www.springframework.org/schema/task/spring-task.xsd  ">
 
-    <context:property-placeholder location="classpath:{spring.profiles.active}.properties"/>
+    <!-- 使用配置文件需要设置环境变量spring.profiles.active -->
+    <context:property-placeholder location="classpath:${spring.profiles.active}.properties"/>
     <context:component-scan base-package="com.jzt.spider.controller,com.jzt.spider.service,com.jzt.spider.dao"/>
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -39,7 +40,7 @@
     <!-- 数据源 -->
     <bean id="dataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="${db.driver}"/>
+        <property name="driverClassName" value="${db.driverClassName}"/>
         <property name="url" value="${db.url}"/>
         <property name="username" value="${db.username}"/>
         <property name="password" value="${db.password}"/>
@@ -47,27 +48,25 @@
 
     <!-- JPA实体管理工厂的配置 -->
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="jpaVendorAdapter" ref="hibernateJpaVendorAdapter"/>
         <property name="packagesToScan" value="com.jzt.spider.entity"/>
-        <property name="jpaProperties">
-            <props>
-                <prop key="hibernate.show_sql">true</prop>
-            </props>
+        <property name="dataSource" ref="dataSource"/>
+        <property name="jpaVendorAdapter">
+            <bean id="hibernateJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="database" value="${jpa.database}"/>
+                <property name="showSql" value="${jpa.showSql}"/>
+                <property name="generateDdl" value="${jpa.generateDdl}"/>
+            </bean>
         </property>
     </bean>
 
-    <!--指定实现JPA的适配器-->
-    <bean id="hibernateJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-        <property name="databasePlatform" value="${hibernate.dialect}"/>
-    </bean>
 
     <!-- Jpa 事务配置 -->
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
-    <!-- 使用annotation定义事务 -->
+    <!-- 使用annotation设置事务 -->
     <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+    <!-- 使用annotation设置定时任务 -->
     <task:annotation-driven/>
 </beans>
