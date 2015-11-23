@@ -10,7 +10,8 @@ import java.util.Date;
 @Table(name = "tb_task")
 public class Task {
     public static final int STATUS_NOT_START = 0;
-    public static final int STATUS_START = 1;
+    public static final int STATUS_REQUEST = 1;
+    public static final int STATUS_RESPONSE = 2;
     public static final int STATUS_DONE = 3;
 
     @Id
@@ -23,7 +24,35 @@ public class Task {
     @Column(name = "robot_id")
     private Long robotId;
     private String context;
-    private String input;
+    /**
+     * request 格式
+     * {
+     *      url: "",    // 必填
+     *      method: ""  // 选填，默认为get
+     * }
+     */
+    private String request;
+    /**
+     * response 格式
+     * {
+     *      header: {}, // 响应头
+     *      body: ""   // 响应体
+     * }
+     */
+    private String response;
+    /**
+     * output 格式，如果为中间过程，需要进一步下载解析：
+     * {
+     *      refreshTime: 1234567890, // 下次任务运行时间点, null为不运行
+     *      // 分裂出来的子任务列表
+     *      subTask: [
+     *          {
+     *              // 子任务属性，返回后新建子任务插入数据库
+     *          }
+     *      ]
+     * }
+     * 如果为最终结果，为任意约定好的json串
+     */
     private String output;
     @Column(name = "start_time")
     private Date startTime;
@@ -32,6 +61,20 @@ public class Task {
     @Column(name = "refresh_time")
     private Date refreshTime;
     private Integer status;
+
+    public Task() {
+    }
+
+    public Task(String name, Long robotId, String context, String request, String response, String output, Integer status) {
+        this();
+        this.name = name;
+        this.robotId = robotId;
+        this.context = context;
+        this.request = request;
+        this.response = response;
+        this.output = output;
+        this.status = status;
+    }
 
     public Long getId() {
         return id;
@@ -73,12 +116,20 @@ public class Task {
         this.context = context;
     }
 
-    public String getInput() {
-        return input;
+    public String getRequest() {
+        return request;
     }
 
-    public void setInput(String input) {
-        this.input = input;
+    public void setRequest(String request) {
+        this.request = request;
+    }
+
+    public String getResponse() {
+        return response;
+    }
+
+    public void setResponse(String response) {
+        this.response = response;
     }
 
     public String getOutput() {

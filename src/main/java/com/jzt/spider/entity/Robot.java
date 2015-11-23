@@ -24,6 +24,19 @@ public class Robot {
     private String script;
     private Integer status;
 
+    public Robot() {
+    }
+
+    public Robot(Integer groupId, String description, Integer count, String scriptEngine, String script, Integer status) {
+        this();
+        this.groupId = groupId;
+        this.description = description;
+        this.count = count;
+        this.scriptEngine = scriptEngine;
+        this.script = script;
+        this.status = status;
+    }
+
     public Long getId() {
         return id;
     }
