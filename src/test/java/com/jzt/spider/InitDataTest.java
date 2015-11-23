@@ -26,8 +26,8 @@ public class InitDataTest extends BaseTest {
 
     @Test
     public void initData() throws IOException {
-//        initRobot();
-//        initTask();
+        initRobot();
+        initTask();
 
     }
 
@@ -45,7 +45,7 @@ public class InitDataTest extends BaseTest {
                 "http://www.guahao.com/hospital/areahospitals?q=&pi=1&p=%E5%8C%97%E4%BA%AC",
                 2L, // 处理列表页面 robot
                 "",
-                "{\"url\" : \"http://www.guahao.com/hospital/areahospitals?q=&pi=1&p=%E5%8C%97%E4%BA%AC\"}",
+                "[{\"url\" : \"http://www.guahao.com/hospital/areahospitals?q=&pi=1&p=%E5%8C%97%E4%BA%AC\"}]",
                 "",
                 "",
                 Task.STATUS_NOT_START

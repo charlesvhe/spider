@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jzt.spider.dao.BaseDao;
-import com.jzt.spider.dao.RobotDao;
 import com.jzt.spider.dao.TaskDao;
 import com.jzt.spider.entity.Robot;
 import com.jzt.spider.entity.Task;
@@ -28,7 +27,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -60,20 +58,26 @@ public class TaskService extends BaseService<Task> {
                 List<Task> taskList = this.query(0, 25, "status=?", Arrays.asList(Task.STATUS_NOT_START), null);
                 for (Task task : taskList) {
                     try {
-                        JSONObject requestJson = JSONObject.parseObject(task.getRequest());
+                        JSONArray requestArray = JSONObject.parseArray(task.getRequest());
 
                         // TODO 调用分布式下载
-                        Connection connection = Jsoup.connect(requestJson.getString("url"));
                         task.setStatus(Task.STATUS_REQUEST);
                         this.merge(task);
 
                         // TODO 模拟下载完成
-                        Connection.Response response = connection.execute();
-                        JSONObject responseJson = new JSONObject();
-                        responseJson.put("header", response.headers());
-                        responseJson.put("body", response.body());
+                        JSONArray responseArray = new JSONArray();
+                        for (int i = 0; i < requestArray.size(); i++) {
+                            JSONObject requestJson = requestArray.getJSONObject(i);
+                            Connection connection = Jsoup.connect(requestJson.getString("url"));
 
-                        task.setResponse(responseJson.toJSONString());
+                            Connection.Response response = connection.execute();
+                            JSONObject responseJson = new JSONObject();
+                            responseJson.put("header", response.headers());
+                            responseJson.put("body", response.body());
+                            responseArray.add(responseJson);
+                        }
+
+                        task.setResponse(responseArray.toJSONString());
                         task.setStatus(Task.STATUS_RESPONSE);
 
                         this.merge(task);
@@ -90,13 +94,15 @@ public class TaskService extends BaseService<Task> {
         }
     }
 
-//    @Transactional
+    @Transactional
     public void runTask(Task task) throws ScriptException {
         // 获得执行该任务的机器人
         Robot robot = robotService.find(task.getRobotId());
         // FIXME for testing
         try {
-            robot.setScript(FileUtils.readFileToString(new File(Class.class.getResource("/RobotList.groovy").getPath())));
+            if(task.getId().equals(2L)){
+                robot.setScript(FileUtils.readFileToString(new File(Class.class.getResource("/RobotList.groovy").getPath())));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

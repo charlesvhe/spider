@@ -19,7 +19,7 @@ public class TaskServiceTest extends BaseTest {
     }
 
 //    @Test
-//    public void test_refresh() {
-//        taskService.refresh();
-//    }
+    public void test_refresh() {
+        taskService.refresh();
+    }
 }
