@@ -20,16 +20,14 @@ public class TaskServiceTest extends BaseTest {
     public void test_runTask() throws ScriptException {
         // 运行挂号网起始任务, 产生列表页任务
 //        taskService.runTask(taskService.find(1L));
-        // 刷新, 下载列表页
+        // 刷新
         taskService.refresh();
-        // 运行列表页任务
-//        taskService.runTask(taskService.find(2L));
-        // 刷新, 下载详情页
-//        taskService.refresh();
-        // 运行详情页
-//        List<Task> taskList = taskService.query(0, 25, "status=?", Arrays.asList(Task.STATUS_RESPONSE), null);
-//        for (Task task : taskList) {
-//            taskService.runTask(task);
-//        }
+
+        try {
+            // 异步操作, 需要主线程存活
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
