@@ -10,9 +10,8 @@ import java.util.Date;
 @Table(name = "tb_task")
 public class Task {
     public static final int STATUS_NOT_START = 0;
-    public static final int STATUS_REQUEST = 1;
-    public static final int STATUS_RESPONSE = 2;
-    public static final int STATUS_DONE = 3;
+    public static final int STATUS_START = 1;
+    public static final int STATUS_DONE = 2;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

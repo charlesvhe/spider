@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,7 +56,8 @@ public class InitDataTest extends BaseTest {
 
         task.setResponse(response.toJSONString());
         task.setOutput("");
-        task.setStatus(Task.STATUS_RESPONSE);
+        task.setRefreshTime(new Date(System.currentTimeMillis()));
+        task.setStatus(Task.STATUS_DONE);
 
         taskService.persist(task);
     }
