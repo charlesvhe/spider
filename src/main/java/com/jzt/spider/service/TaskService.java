@@ -55,7 +55,8 @@ public class TaskService extends BaseService<Task> {
         if (TaskService.REFRESH_LOCK.tryLock()) {
             try {
                 // 获取需要刷新的任务列表
-                List<Task> taskList = this.query(0, 25, "status=?", Arrays.asList(Task.STATUS_NOT_START), null);
+                // TODO 请求超时刷新 "1=1"
+                List<Task> taskList = this.query(0, 25, "status=? or (status=? and 1=1)", Arrays.asList(Task.STATUS_NOT_START, Task.STATUS_REQUEST), null);
                 for (Task task : taskList) {
                     try {
                         JSONArray requestArray = JSONObject.parseArray(task.getRequest());
@@ -98,19 +99,11 @@ public class TaskService extends BaseService<Task> {
     public void runTask(Task task) throws ScriptException {
         // 获得执行该任务的机器人
         Robot robot = robotService.find(task.getRobotId());
-        // FIXME for testing
-        try {
-            if(task.getId().equals(2L)){
-                robot.setScript(FileUtils.readFileToString(new File(Class.class.getResource("/RobotList.groovy").getPath())));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         // 传入数据 运行脚本
         ScriptEngine engine = new ScriptEngineManager().getEngineByName(robot.getScriptEngine());
         // 如果传入对象，为引用类型，可在脚本中改变对象属性值
         Bindings bindings = engine.createBindings();
-        String jsonString = JSON.toJSONString(task);
+        String jsonString = JSONObject.toJSONString(task);
         bindings.put("task", jsonString);
 
         String output = (String) engine.eval(robot.getScript(), bindings);

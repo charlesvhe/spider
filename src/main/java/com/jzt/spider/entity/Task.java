@@ -31,7 +31,6 @@ public class Task {
      *      method: ""  // 选填，默认为get
      * }
      */
-    @Column(length = Integer.MAX_VALUE)
     private String request;
     /**
      * response 格式
@@ -40,7 +39,6 @@ public class Task {
      *      body: ""   // 响应体
      * }
      */
-    @Column(length = Integer.MAX_VALUE)
     private String response;
     /**
      * output 格式，如果为中间过程，需要进一步下载解析：
@@ -55,7 +53,6 @@ public class Task {
      * }
      * 如果为最终结果，为任意约定好的json串
      */
-    @Column(length = Integer.MAX_VALUE)
     private String output;
     @Column(name = "start_time")
     private Date startTime;

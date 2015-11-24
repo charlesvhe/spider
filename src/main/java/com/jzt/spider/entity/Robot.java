@@ -21,7 +21,6 @@ public class Robot {
     private Integer count;
     @Column(name = "script_engine")
     private String scriptEngine;
-    @Column(length = Integer.MAX_VALUE)
     private String script;
     private Integer status;
 
