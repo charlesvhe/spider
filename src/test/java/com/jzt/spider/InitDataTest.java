@@ -56,7 +56,7 @@ public class InitDataTest extends BaseTest {
 
         task.setResponse(response.toJSONString());
         task.setOutput("");
-        task.setRefreshTime(new Date(System.currentTimeMillis()));
+        task.setRefreshTime(new Date());
         task.setStatus(Task.STATUS_DONE);
 
         taskService.persist(task);

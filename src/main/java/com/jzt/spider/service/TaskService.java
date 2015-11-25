@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -66,12 +67,19 @@ public class TaskService extends BaseService<Task> {
                 for (Task task : taskList) {
                     // 异常不影响后续任务处理
                     try {
-                        taskPoolService.addRequestTask(task.getId(), task.getRequest());
+                        boolean isAdded;    // 已存任务不会重复添加
+                        if(StringUtils.isEmpty(task.getRequest())){ // 起始任务没有request, 直接执行
+                            isAdded = taskPoolService.addResponseTask(task.getId(), task.getResponse());
+                        }else{
+                            isAdded = taskPoolService.addRequestTask(task.getId(), task.getRequest());
+                        }
 
                         // 变更任务状态
-                        task.setStartTime(new Date());
-                        task.setStatus(Task.STATUS_START);
-                        this.merge(task);
+                        if(isAdded){
+                            task.setStartTime(new Date());
+                            task.setStatus(Task.STATUS_START);
+                            this.merge(task);
+                        }
                     } catch (Exception e) {
                         LOG.warn(e);
                     }

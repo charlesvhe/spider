@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class TaskPoolService {
     private static final Logger LOG = LogManager.getLogger(TaskPoolService.class);
 
-    private static final ConcurrentHashMap<Long, ThreadPoolExecutor> THREAD_POOL_MAP = new ConcurrentHashMap();
+    private static final ConcurrentHashMap<Long, ThreadPoolExecutor> THREAD_POOL_MAP = new ConcurrentHashMap<>();
 
     @Autowired
     private RobotService robotService;
@@ -34,17 +34,17 @@ public class TaskPoolService {
     @Autowired
     private TaskService taskService;
 
-    public void addRequestTask(Long taskId, String request) {
+    public boolean addRequestTask(Long taskId, String request) {
         Task task = taskService.find(taskId);
-        TaskPoolService.addTask(task.getRobotId(), robotService, new RequestTask(taskId, request));
+        return TaskPoolService.addTask(task.getRobotId(), robotService, new RequestTask(taskId, request));
     }
 
-    public void addResponseTask(Long taskId, String response) {
+    public boolean addResponseTask(Long taskId, String response) {
         Task task = taskService.find(taskId);
-        TaskPoolService.addTask(task.getRobotId(), robotService, new ResponseTask(taskId, response));
+        return TaskPoolService.addTask(task.getRobotId(), robotService, new ResponseTask(taskId, response));
     }
 
-    private static void addTask(Long robotId, RobotService robotService, Runnable task) {
+    private static boolean addTask(Long robotId, RobotService robotService, Runnable task) {
         ThreadPoolExecutor tpe = THREAD_POOL_MAP.get(robotId);
         if (null == tpe) {
             // 线程生命周期大于刷新间隔
@@ -54,7 +54,9 @@ public class TaskPoolService {
         }
         if (!tpe.getQueue().contains(task)) {
             tpe.execute(task);
+            return true;
         }
+        return false;
     }
 
     private class ResponseTask implements Runnable {
