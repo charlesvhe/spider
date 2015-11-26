@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class TaskPoolService {
     private static final Logger LOG = LogManager.getLogger(TaskPoolService.class);
 
-    private static final ConcurrentHashMap<Long, ThreadPoolExecutor> THREAD_POOL_MAP = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<Long, ThreadPoolExecutor> THREAD_POOL_MAP = new ConcurrentHashMap<>();
 
     @Autowired
     private RobotService robotService;
