@@ -59,7 +59,7 @@ public class TaskService extends BaseService<Task> {
     /**
      * 刷新任务, 启动 未开始 或已开始但超时 或已完成但到达刷新时间点 的任务
      */
-    @Scheduled(cron = "* */15 9-21 * * *")  // 用户活跃时段刷新, 防止被发现
+    @Scheduled(cron = "0 */15 9-21 * * *")  // 用户活跃时段刷新, 防止被发现
     @Transactional
     public void refresh() {
         if (TaskService.REFRESH_LOCK.tryLock()) {
