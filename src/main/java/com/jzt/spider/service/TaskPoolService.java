@@ -125,7 +125,7 @@ public class TaskPoolService {
         @Override
         public void run() {
             try {
-                // 异步下载
+                // FIXME 调用异步下载
                 JSONArray requestArray = JSONObject.parseArray(request);
                 JSONArray responseArray = new JSONArray();
                 for (int i = 0; i < requestArray.size(); i++) {

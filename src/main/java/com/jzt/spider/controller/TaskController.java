@@ -3,21 +3,19 @@ package com.jzt.spider.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.jzt.spider.entity.Task;
 import com.jzt.spider.service.BaseService;
+import com.jzt.spider.service.TaskPoolService;
 import com.jzt.spider.service.TaskService;
 import com.jzt.spider.vo.RestfulResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.script.ScriptException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Charles on 2015/11/19.
@@ -28,6 +26,9 @@ public class TaskController extends BaseAdminController<Task> {
     @Autowired
     private TaskService taskService;
 
+    @Autowired
+    private TaskPoolService taskPoolService;
+
     @Override
     public BaseService<Task> getBaseAdminService() {
         return taskService;
@@ -36,6 +37,12 @@ public class TaskController extends BaseAdminController<Task> {
     @RequestMapping(value = "/{id}/refresh", method = RequestMethod.PUT)
     public RestfulResult<Task> refresh(@PathVariable Long id) {
         taskService.refresh();
+        return new RestfulResult<>();
+    }
+
+    @RequestMapping(value = "/{id}/response", method = RequestMethod.PUT)
+    public RestfulResult<Task> response(@PathVariable Long id, String data) throws ScriptException {
+        taskPoolService.addResponseTask(id, data);
         return new RestfulResult<>();
     }
 

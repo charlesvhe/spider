@@ -4,6 +4,7 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -12,12 +13,16 @@
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx.xsd
         http://www.springframework.org/schema/task
-        http://www.springframework.org/schema/task/spring-task.xsd  ">
+        http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <!-- 使用配置文件需要设置环境变量spring.profiles.active -->
     <context:property-placeholder location="classpath:${spring.profiles.active}.properties"/>
     <context:component-scan base-package="com.jzt.spider.controller,com.jzt.spider.service,com.jzt.spider.dao"/>
 
+
+    <!-- MVC配置 -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix">
             <value>/WEB-INF/jsp/</value>
@@ -36,6 +41,7 @@
             </list>
         </property>
     </bean>
+
 
     <!-- 数据源 -->
     <bean id="dataSource"
@@ -67,6 +73,21 @@
 
     <!-- 使用annotation设置事务 -->
     <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+
     <!-- 使用annotation设置定时任务 -->
     <task:annotation-driven/>
+
+
+    <!-- 配置监控 -->
+    <aop:config proxy-target-class="true">
+        <aop:advisor advice-ref="monitoringAdvice" pointcut-ref="monitoringPointcut"/>
+    </aop:config>
+    <!-- service 监控 -->
+    <bean id="monitoringAdvice" class="net.bull.javamelody.MonitoringSpringAdvisor"/>
+    <bean id="monitoringPointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut">
+        <property name="pattern" value="jzt.spider.service.*.*"/>
+    </bean>
+    <!-- 数据库监控 -->
+    <bean id="springDataSourceBeanPostProcessor" class="net.bull.javamelody.SpringDataSourceBeanPostProcessor"/>
+
 </beans>
