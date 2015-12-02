@@ -36,7 +36,7 @@ public class TaskController extends BaseAdminController<Task> {
 
     @RequestMapping(value = "/{id}/refresh", method = RequestMethod.PUT)
     public RestfulResult<Task> refresh(@PathVariable Long id) {
-        taskService.refresh();
+        taskService.refresh(taskService.find(id));
         return new RestfulResult<>();
     }
 
@@ -53,16 +53,16 @@ public class TaskController extends BaseAdminController<Task> {
     }
 
     @RequestMapping(value = "/startTask", method = RequestMethod.POST)
-    public RestfulResult<Task> startTask(String name, List<String> urlList, Long robotId) {
+    public RestfulResult<Task> startTask(String name, String[] url, Long robotId) {
         JSONObject response = new JSONObject();
         List<Task> subTask = new ArrayList<>();
 
-        for (String url : urlList) {
+        for (String oneUrl : url) {
             subTask.add(new Task(
-                    url,
+                    oneUrl,
                     robotId, // 处理列表页面 robot
                     "",
-                    "[{\"url\" : \""+url+"\"}]",
+                    "[{\"url\" : \""+oneUrl+"\"}]",
                     "",
                     "",
                     Task.STATUS_NOT_START

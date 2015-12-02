@@ -24,3 +24,7 @@ CREATE TABLE `tb_task` (
   `status` int(11) NOT NULL DEFAULT '0' COMMENT '状态\n0:未开始\n1:请求发出\n2:响应接收\n3:已完成\n',
   PRIMARY KEY (`id`)
 );
+
+
+-- init data
+INSERT INTO `tb_robot` VALUES (1,0,'起始入口，启动后续任务，直接返回response',1,'groovy','import com.alibaba.fastjson.JSONObject; JSONObject taskJson = JSONObject.parseObject(task);  return taskJson.getString("response");',1);

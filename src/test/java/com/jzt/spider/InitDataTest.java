@@ -37,30 +37,22 @@ public class InitDataTest extends BaseTest {
     private void initTask() {
         if (taskService.find(1L) == null) {
             taskController.startTask("挂号网起始任务",
-                    Arrays.asList("http://www.guahao.com/hospital/areahospitals?q=&pi=1&p=%E5%8C%97%E4%BA%AC",
-                            "http://www.guahao.com/hospital/areahospitals?q=&pi=19&p=%E6%B9%96%E5%8C%97&ci=229&c=%E6%AD%A6%E6%B1%89"),
+                    new String[]{"http://www.guahao.com/hospital/areahospitals?q=&pi=1&p=%E5%8C%97%E4%BA%AC",
+                            "http://www.guahao.com/hospital/areahospitals?q=&pi=19&p=%E6%B9%96%E5%8C%97&ci=229&c=%E6%AD%A6%E6%B1%89"},
                     2L  // 列表页robotId
             );
         }
     }
 
     private void initRobot() throws IOException {
-        if (robotService.find(1L) == null) {
+        if (robotService.find(2L) == null) {
             Robot robot = null;
-            // 统一起始入口robot
-            robot = new Robot(0,
-                    "起始入口，启动后续任务，直接返回response",
-                    1,
-                    "groovy",
-                    FileUtils.readFileToString(new File(Class.class.getResource("/RobotStart.groovy").getPath())),
-                    Robot.STATUS_ENABLE);
-            robotController.post(robot);
             // 列表页
             robot = new Robot(0,
                     "挂号网医院列表页面",
                     1,
                     "groovy",
-                    FileUtils.readFileToString(new File(Class.class.getResource("/RobotList.groovy").getPath())),
+                    FileUtils.readFileToString(new File(Class.class.getResource("/groovy/RobotList_test.groovy").getPath())),
                     Robot.STATUS_ENABLE);
             robotController.post(robot);
             // 详情页
@@ -68,7 +60,7 @@ public class InitDataTest extends BaseTest {
                     "挂号网医院详情页面",
                     3,
                     "groovy",
-                    FileUtils.readFileToString(new File(Class.class.getResource("/RobotDetail.groovy").getPath())),
+                    FileUtils.readFileToString(new File(Class.class.getResource("/groovy/RobotDetail_test.groovy").getPath())),
                     Robot.STATUS_ENABLE);
             robotController.post(robot);
         }

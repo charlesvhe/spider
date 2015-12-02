@@ -80,14 +80,9 @@
 
     <!-- 配置监控 -->
     <aop:config proxy-target-class="true">
-        <aop:advisor advice-ref="monitoringAdvice" pointcut-ref="monitoringPointcut"/>
+        <aop:advisor advice-ref="monitoringAdvice" pointcut="execution(* com.jzt.spider.service.*.*(..))" />
     </aop:config>
-    <!-- service 监控 -->
-    <bean id="monitoringAdvice" class="net.bull.javamelody.MonitoringSpringAdvisor"/>
-    <bean id="monitoringPointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut">
-        <property name="pattern" value="jzt.spider.service.*.*"/>
-    </bean>
-    <!-- 数据库监控 -->
+    <bean id="monitoringAdvice" class="net.bull.javamelody.MonitoringSpringInterceptor" />
     <bean id="springDataSourceBeanPostProcessor" class="net.bull.javamelody.SpringDataSourceBeanPostProcessor"/>
 
 </beans>

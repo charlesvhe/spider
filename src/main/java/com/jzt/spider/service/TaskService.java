@@ -36,7 +36,7 @@ public class TaskService extends BaseService<Task> {
     private static final Logger LOG = LogManager.getLogger(TaskService.class);
 
     public static final int MAX_QUEUE = 10000;
-    public static final int TIME_OUT = 1000 * 60;
+    public static final int TIME_OUT = 1000 * 1;
 
 
     @Autowired
@@ -56,33 +56,19 @@ public class TaskService extends BaseService<Task> {
         return CollectionUtils.isEmpty(list) ? null : list.get(0);
     }
 
+    /**
+     * 刷新任务, 启动 未开始 或已开始但超时 或已完成但到达刷新时间点 的任务
+     */
     @Scheduled(cron = "* */15 9-21 * * *")  // 用户活跃时段刷新, 防止被发现
     @Transactional
     public void refresh() {
         if (TaskService.REFRESH_LOCK.tryLock()) {
             try {
                 // 获取需要刷新的任务列表, 未开始任务/超时任务/刷新任务
-                List<Task> taskList = this.query(0, MAX_QUEUE, "status=? or (status=? and startTime>?) or (status=? and refreshTime<?)",
-                        Arrays.asList(Task.STATUS_NOT_START, Task.STATUS_START, new Date(System.currentTimeMillis() + TIME_OUT), Task.STATUS_DONE, new Date()), null);
+                List<Task> taskList = this.query(0, MAX_QUEUE, "status=? or (status=? and startTime<?) or (status=? and refreshTime<?)",
+                        Arrays.asList(Task.STATUS_NOT_START, Task.STATUS_START, new Date(System.currentTimeMillis() - TIME_OUT), Task.STATUS_DONE, new Date()), null);
                 for (Task task : taskList) {
-                    // 异常不影响后续任务处理
-                    try {
-                        boolean isAdded;    // 已存任务不会重复添加
-                        if(StringUtils.isEmpty(task.getRequest())){ // 起始任务没有request, 直接执行
-                            isAdded = taskPoolService.addResponseTask(task.getId(), task.getResponse());
-                        }else{
-                            isAdded = taskPoolService.addRequestTask(task.getId(), task.getRequest());
-                        }
-
-                        // 变更任务状态
-                        if(isAdded){
-                            task.setStartTime(new Date());
-                            task.setStatus(Task.STATUS_START);
-                            this.merge(task);
-                        }
-                    } catch (Exception e) {
-                        LOG.warn(e);
-                    }
+                    refresh(task);
                 }
                 LOG.info("refresh task.");
             } finally {
@@ -93,6 +79,33 @@ public class TaskService extends BaseService<Task> {
         }
     }
 
+    @Transactional
+    public void refresh(Task task) {
+        // 异常不影响后续任务处理
+        try {
+            boolean isAdded;    // 已存任务不会重复添加
+            if(StringUtils.isEmpty(task.getRequest())){ // 起始任务没有request, 直接执行
+                isAdded = taskPoolService.addResponseTask(task.getId(), task.getResponse());
+            }else{
+                isAdded = taskPoolService.addRequestTask(task.getId(), task.getRequest());
+            }
+
+            // 变更任务状态
+            if(isAdded){
+                task.setStartTime(new Date());
+                task.setStatus(Task.STATUS_START);
+                this.merge(task);
+            }
+        } catch (Exception e) {
+            LOG.warn(e);
+        }
+    }
+
+    /**
+     * 所有条件准备好, 执行脚本
+     * @param task
+     * @throws ScriptException
+     */
     @Transactional
     public void runTask(Task task) throws ScriptException {
         // 获得执行该任务的机器人
